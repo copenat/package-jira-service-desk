@@ -59,7 +59,10 @@ function getValidatedResponse(http:Response|error httpConnectorResponse) returns
                 //Extracting the error response from the JSON payload of the Jira server response
                 match response.getJsonPayload() {
                     json jsonPayload => e.jiraServerErrorLog = jsonPayload;
-                    error => e.jiraServerErrorLog = null;
+                    error => {
+                        e.jiraServerErrorLog =  check response.getPayloadAsString();
+                        log:printDebug("Unable to get the jsonPayLoad for the error");
+                    }
                 }
                 return e;
             }

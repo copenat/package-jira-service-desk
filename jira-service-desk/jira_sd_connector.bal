@@ -32,6 +32,9 @@ public type JiraSDConnector object {
         returns JiraSDRequestType|JiraConnectorError;
     public function getRequestTypeFields(JiraServiceDesk jsd, JiraSDRequestType requestType) 
         returns JiraSDRequestTypeField[]|JiraConnectorError;
+    public function createCustomerRequest(
+        JiraServiceDesk jsd, JiraSDRequestType requestType, JiraSDCustomerRequest request) 
+        returns JiraSDCustomerRequestCreated|JiraConnectorError;
 
 };
 
@@ -189,6 +192,36 @@ function JiraSDConnector::getRequestTypeFields(JiraServiceDesk jsd, JiraSDReques
                 log:printDebug(jsonRTField.toString());
             }  
             return request_type_fields;
+        }
+    }
+}
+
+documentation{Creates a customer request in the service desk. The equivalent of manually 
+entering data via the customer portal. Returns request type for a jira service desk project 
+    R{{JiraSDRequestType}} 'JiraSDRequestType' record presenting the request type
+    R{{JiraConnectorError}} 'JiraConnectorError' record presenting an error
+}
+function JiraSDConnector::createCustomerRequest(
+        JiraServiceDesk jsd, JiraSDRequestType requestType, JiraSDCustomerRequest request) 
+        returns JiraSDCustomerRequestCreated|JiraConnectorError {
+
+    endpoint http:Client jiraHttpClientEP = self.jiraHttpClient;
+    JiraSDCustomerRequestCreated create_response = {};
+
+    http:Request outRequest = new;
+    json jsonPayload = { "serviceDeskId": jsd.sd_id, "requestTypeId": requestType.id, 
+                         "requestFieldValues": check <json>request };
+    log:printDebug("Create payload : " + jsonPayload.toString());
+    outRequest.setJsonPayload(jsonPayload);
+
+    var httpResponseOut = jiraHttpClientEP->post("/request", outRequest);
+    //Evaluate http response for connection and server errors
+    var jsonResponseOut = getValidatedResponse(httpResponseOut);
+    match jsonResponseOut {
+        JiraConnectorError e => return e;
+        json jsonResponse => {
+            create_response = jsonToJiraSDCustomerRequest(jsonResponse);
+            return create_response;
         }
     }
 }

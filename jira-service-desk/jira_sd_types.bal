@@ -73,6 +73,39 @@ public type RequestTypeFieldValue record {
     string label;
 };
 
+documentation{Represents the values for a customer request
+
+    F{{summary}} summary of the Jira Service Desk issue
+}
+public type JiraSDCustomerRequest record {
+    string summary;
+};
+
+documentation{Represents the values from Jira SD when a customer 
+request has been created. A customer request in Jira Service Desk (SD)
+is the same as an Issue in Jira but in Jira SD its create via the
+settings on the customer portal. 
+
+    F{{sd_id}} service desk id this issue is in
+    F{{requestTypeId}} id of the request type of this issue
+    F{{createdDate}} date stamp of when it was created
+    F{{currentStatus}} status of the request
+    F{{issueId}} id of the issue in Jira SD
+    F{{issueKey}} the key of the issue in Jira SD. ie XXX-123
+    F{{reporterKey}}
+    F{{reporterName}}
+}
+public type JiraSDCustomerRequestCreated record {
+    string sd_id;
+    string requestTypeId;
+    string createdDate;
+    string currentStatus;
+    string issueId;
+    string issueKey;
+    string reporterKey;
+    string reporterName;
+};
+
 documentation{Represent Jira Connector based errors.
     F{{^"type"}} type of the error (HTTP error,server error etc.)
     F{{message}} error message

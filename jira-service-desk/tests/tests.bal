@@ -4,10 +4,16 @@ import ballerina/test;
 import ballerina/config;
 import wso2/jira7;
 
-JiraServiceDesk service_desk_test = {};
+// This Jira Service Desk project needs to be created before running these tests
+JiraServiceDesk service_desk_test = {
+    name: "Test Service Desk",
+    key: "TSD"
+};
 JiraSDRequestType[] request_types_test = [];
 JiraSDRequestType request_type_test = {};
 JiraSDRequestTypeField[] request_type_values_test = [];
+JiraSDCustomerRequestCreated customer_request_test = {};
+
 
 endpoint jira7:Client jiraConn {
     clientConfig: {
@@ -43,55 +49,35 @@ endpoint Client jiraSDConnFail {
 };
 
 function formatJiraConnError(JiraConnectorError e) returns string {
-    return string `{{e.message}} - {{e.jiraServerErrorLog.errors.toString()}}`;
+    return string `{{e.message}} - {{e.jiraServerErrorLog.toString()}}`;
 }
 
 @test:BeforeSuite
 function connector_init() {
-    //Delete and recreate service desk instance TSD
     log:printInfo("Initialising tests");
-    _ = jiraConn->deleteProject("TSD");
-    jira7:ProjectRequest test_project_req =
-    {
-        key: "TSD",
-        name: "Test Service Desk",
-        projectTypeKey: "service_desk",
-        projectTemplateKey: "com.atlassian.servicedesk:itil-v2-service-desk-project",
-        description: "Service Desk for automated tests",
-        lead: config:getAsString("test_username"),
-        assigneeType: "PROJECT_LEAD",
-        permissionScheme: "10000"
-    };
-    jira7:Project test_service_desk;
-
-    var output = jiraConn->createProject(test_project_req);
-    match output {
-        jira7:Project p => test_service_desk = p;
-        jira7:JiraConnectorError e => test:assertFail(msg = formatJiraConnError(e));
-    }
-    log:printInfo("Successfully created Test Service Desk (TSD)");
 }
 
 @test:Config
 function test_getAllJiraServiceDesks() {
+    string msg = "";
     log:printInfo("ACTION : getAllJiraServiceDesks()");
 
     var output = jiraSDConn->getServiceDesks();
     match output {
-        JiraServiceDesk[] sd_list => service_desk_test = sd_list[0]; 
+        JiraServiceDesk[] => msg = "Success";
         JiraConnectorError e => test:assertFail(msg = formatJiraConnError(e));
     }
 }
 
 @test:Config
 function test_getAllJiraServiceDesksFail() {
-    string ret = "";
+    string msg = "";
     log:printInfo("ACTION : getAllJiraServiceDesksFail()");
 
     var output = jiraSDConnFail->getServiceDesks();
     match output {
         JiraServiceDesk[] => test:assertFail(msg = "This test is supposed to return a failure.");
-        JiraConnectorError e => ret = "Success";
+        JiraConnectorError e => msg = "Success";
     }
 }
 
@@ -102,7 +88,7 @@ function test_getJiraServiceDesk() {
     log:printInfo("ACTION : getJiraServiceDesk()");
 
     JiraServiceDesk jsd1 = {
-        name: "Test Service Desk"
+        name: service_desk_test.name
     };
     var output = jiraSDConn->getServiceDesk(jsd1);
     match output {
@@ -111,7 +97,7 @@ function test_getJiraServiceDesk() {
     }
 
     JiraServiceDesk jsd2 = {
-        key: "TSD"
+        key: service_desk_test.key
     };
     output = jiraSDConn->getServiceDesk(jsd2);
     match output {
@@ -180,6 +166,35 @@ function test_getRequestTypeFieldsForJiraSDProject() {
     }
 }
 
+@test:Config {
+    dependsOn: ["test_getRequestTypeFieldsForJiraSDProject"]
+}
+function test_createCustomerRequest() {
+    string ret = "";
+    log:printInfo("ACTION : createCustomerRequest()");
+    JiraSDCustomerRequest customer_request = {
+        summary: "Requesting software - testing Jira SD API connector Ballerina"
+    };
+    var output = jiraSDConn->createCustomerRequest(service_desk_test, request_type_test, customer_request);
+    match output {
+        JiraSDCustomerRequestCreated => test:assertFail(msg = "This test is supposed to return a failure.");
+        JiraConnectorError => ret = "Success";
+    }
+
+    customer_request = {
+        summary: "Requesting software - testing Jira SD API connector Ballerina",
+        description: "this desciption field is mandatory for this request type"
+    };
+    output = jiraSDConn->createCustomerRequest(service_desk_test, request_type_test, customer_request);
+    match output {
+        JiraSDCustomerRequestCreated cr => {
+            customer_request_test = cr;
+            json created_json = check <json>customer_request_test;
+            log:printInfo("Successfully created customer request : " + created_json.toString());
+        } 
+        JiraConnectorError e => test:assertFail(msg = formatJiraConnError(e));
+    }
+}
 
 
 

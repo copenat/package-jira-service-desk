@@ -75,6 +75,7 @@ function jsonToJiraSDRequestTypeField(json source) returns JiraSDRequestTypeFiel
 }
 
 function jsonToRequestTypeFieldValues(json values) returns RequestTypeFieldValue[] {
+
     RequestTypeFieldValue[] valid_values = [];
 
     foreach (value in values){
@@ -84,6 +85,7 @@ function jsonToRequestTypeFieldValues(json values) returns RequestTypeFieldValue
 }
 
 function jsonToRequestTypeFieldValue(json rt_field_value) returns RequestTypeFieldValue {
+
     RequestTypeFieldValue valid_value = {};
 
     valid_value.value = rt_field_value.value.toString();
@@ -92,7 +94,21 @@ function jsonToRequestTypeFieldValue(json rt_field_value) returns RequestTypeFie
     return valid_value;
 }
 
+function jsonToJiraSDCustomerRequest(json customer_create_response) returns JiraSDCustomerRequestCreated {
 
+    JiraSDCustomerRequestCreated req = {};
+
+    req.sd_id = customer_create_response.serviceDeskId.toString();
+    req.requestTypeId = customer_create_response.requestTypeId.toString();
+    req.createdDate = customer_create_response.createdDate.epochMillis.toString();
+    req.currentStatus = customer_create_response.currentStatus.status.toString();
+    req.issueId = customer_create_response.issueId.toString();
+    req.issueKey = customer_create_response.issueKey.toString();
+    req.reporterKey = customer_create_response.reporter.Key.toString();
+    req.reporterName = customer_create_response.reporter.Name.toString();
+
+    return req;
+}
 
 
 
