@@ -22,6 +22,7 @@ documentation{Stores the details about Jira SD API compatibility
 public type JiraServiceDeskAPI record {
     string api_version;
     string api_doc_url;
+    !...
 };
 
 documentation{Represents a summary of a jira service desk project.

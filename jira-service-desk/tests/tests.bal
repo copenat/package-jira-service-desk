@@ -62,10 +62,10 @@ function test_getJiraServiceDeskAPICompatibility() {
     string msg = "";
     log:printInfo("ACTION : getJiraServiceDeskAPICompatibility()");
 
-    var output = jiraSDConn->getJiraServiceDeskAPICompatibility();
-    match output {
-        JiraServiceDeskAPI api_version_details => _ = api_version_details;
-        JiraConnectorError e => test:assertFail(msg = formatJiraConnError(e));
+    JiraServiceDeskAPI compat = jiraSDConn->getJiraServiceDeskAPICompatibility();
+    map compat_map = <map>compat;
+    if ( compat.api_version == "" || compat.api_doc_url == "" ){
+        test:assertFail(msg = "Compatibility settings are missing");
     }
 }
 
