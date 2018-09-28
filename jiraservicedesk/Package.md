@@ -1,4 +1,4 @@
-Connects to a Jira Service Desk project from Ballerina.
+Connects to a Jira Service Desk project.
 
 ## Compatibility
 |                       |    Version     |
