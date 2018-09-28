@@ -15,6 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 //
+documentation{Stores the details about Jira SD API compatibility
+    F{{api_version}} API resource url
+    F{{api_doc_url}} Link to doc for Jira SD API version
+}
+public type JiraServiceDeskAPI record {
+    string api_version;
+    string api_doc_url;
+};
 
 documentation{Represents a summary of a jira service desk project.
     F{{resource_path}} API resource url
@@ -29,6 +37,7 @@ public type JiraServiceDesk record {
     string project_id;
     string key;
     string name;
+    !...
 };
 
 documentation{Represents a jira service desk request type.
@@ -42,6 +51,7 @@ public type JiraSDRequestType record {
     string name;
     string description;
     string helpText;
+    !...
 };
 
 documentation{Represents the fields for a request type. 
@@ -73,7 +83,10 @@ public type RequestTypeFieldValue record {
     string label;
 };
 
-documentation{Represents the values for a customer request
+documentation{Represents the values for a customer request. It's left an open
+record so you can add whatever fields are needed for the creation
+of your request in Jira SD. This will vary depending on what request
+type is used.
 
     F{{summary}} summary of the Jira Service Desk issue
 }
@@ -118,6 +131,9 @@ public type JiraConnectorError record {
     string ^"type";
     json jiraServerErrorLog;
 };
+
+
+
 
 
 

@@ -52,8 +52,11 @@ function jsonToJiraSDRequestType(json source) returns JiraSDRequestType {
 
 function jiraServiceDeskMatch(JiraServiceDesk jsd_a, JiraServiceDesk jsd_b) returns boolean {
 
-    if (jsd_a.id == jsd_b.id || jsd_a.name == jsd_b.name || jsd_a.project_id == jsd_b.project_id 
-            || jsd_a.key == jsd_b.key){
+    //if (jsd_a.id == jsd_b.id || jsd_a.name == jsd_b.name || jsd_a.project_id == jsd_b.project_id 
+    //        || jsd_a.key == jsd_b.key){
+    //    return true;
+    //}
+    if (jsd_a.key == jsd_b.key || jsd_a.name == jsd_b.name){
         return true;
     }
     return false;

@@ -23,6 +23,14 @@ public type JiraSDConnector object {
 
     http:Client jiraHttpClient = new;
 
+    public function getJiraServiceDeskAPICompatibility() returns JiraServiceDeskAPI {
+        JiraServiceDeskAPI compatibility = {
+            api_version: "3.6.2",
+            api_doc_url: "https://docs.atlassian.com/jira-servicedesk/REST/3.6.2/#servicedeskapi/"
+        }; 
+        return compatibility;  
+    }
+
     public function getServiceDesks() returns JiraServiceDesk[]|JiraConnectorError;
     public function getServiceDesk(JiraServiceDesk jsd) 
         returns JiraServiceDesk|JiraConnectorError;
@@ -91,6 +99,7 @@ function JiraSDConnector::getServiceDesk(JiraServiceDesk jsd)
                 error err = { message: "Error: server response doesn't contain any projects." };
                 return errorToJiraConnectorError(err);
             }
+            log:printDebug("Looking for SD : " + jsd.name);
             foreach (jsonSD in jsonResponse.values) {
                 JiraServiceDesk t_jsd = jsonToJiraServiceDesk(jsonSD);
                 if (jiraServiceDeskMatch(jsd, t_jsd)){

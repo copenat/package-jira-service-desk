@@ -58,6 +58,18 @@ function connector_init() {
 }
 
 @test:Config
+function test_getJiraServiceDeskAPICompatibility() {
+    string msg = "";
+    log:printInfo("ACTION : getJiraServiceDeskAPICompatibility()");
+
+    var output = jiraSDConn->getJiraServiceDeskAPICompatibility();
+    match output {
+        JiraServiceDeskAPI api_version_details => _ = api_version_details;
+        JiraConnectorError e => test:assertFail(msg = formatJiraConnError(e));
+    }
+}
+
+@test:Config
 function test_getAllJiraServiceDesks() {
     string msg = "";
     log:printInfo("ACTION : getAllJiraServiceDesks()");
